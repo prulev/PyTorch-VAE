@@ -11,11 +11,11 @@ class TestVAE(unittest.TestCase):
         self.model = BetaVAE(3, 10, loss_type='H').cuda()
 
     def test_summary(self):
-        print(summary(self.model, (3, 64, 64), device='cpu'))
+        print(summary(self.model, (3, 64, 64), device='cuda'))
         # print(summary(self.model2, (3, 64, 64), device='cpu'))
 
     def test_forward(self):
-        x = torch.randn(16, 3, 64, 64)
+        x = torch.randn(16, 3, 64, 64).cuda()
         y = self.model(x)
         print("Model Output size:", y[0].size())
         # print("Model2 Output size:", self.model2(x)[0].size())

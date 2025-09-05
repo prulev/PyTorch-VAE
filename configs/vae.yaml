@@ -5,7 +5,7 @@ model_params:
 
 
 data_params:
-  data_path: "Data/"
+  data_path: "data"
   train_batch_size: 64
   val_batch_size:  64
   patch_size: 64
@@ -20,7 +20,9 @@ exp_params:
   manual_seed: 1265
 
 trainer_params:
-  gpus: [1]
+  # gpus: [1]    # in the newewst version of PyTorch Lightning, gpus is replaced by devices
+  devices: "auto"     # added
+  accelerator: "auto" # added
   max_epochs: 100
 
 logging_params:
