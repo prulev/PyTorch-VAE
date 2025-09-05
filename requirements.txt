@@ -1,6 +1,7 @@
-pytorch-lightning==1.5.6
+#pytorch-lightning==1.5.6	# version too old, see https://lightning.ai/docs/pytorch/latest/versioning.html#pytorch-support
+pytorch-lightning
 PyYAML==6.0
 tensorboard>=2.2.0
-torch>=1.6.1
-torchsummary==1.5.1
+#torch>=1.6.1		# version too old
+#torchsummary==1.5.1	# version too old
 torchvision>=0.10.1
