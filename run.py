@@ -4,6 +4,7 @@ import argparse
 import numpy as np
 from pathlib import Path
 from models import *
+from utils import *
 from experiment import VAEXperiment
 import torch.backends.cudnn as cudnn
 from pytorch_lightning import Trainer
@@ -14,14 +15,12 @@ from dataset import VAEDataset
 from pytorch_lightning.strategies import DDPStrategy
 
 def main():
-    # build model, data, trainer
+    # load config file
     parser = argparse.ArgumentParser(description='Generic runner for VAE models')
     parser.add_argument('--config',  '-c',
                         dest="filename",
                         metavar='FILE',
-                        help =  'path to the config file',
-                        default='configs/vae.yaml')
-
+                        help =  'path to the config file')
     args = parser.parse_args()
     with open(args.filename, 'r') as file:
         try:
@@ -29,39 +28,42 @@ def main():
         except yaml.YAMLError as exc:
             print(exc)
 
+    # preprocess the spike data
+    if config['data_params']['dataset'] == "spk_mPFC":
+        preprocess_spk(**config['preprocess_params'])
 
-    tb_logger =  TensorBoardLogger(save_dir=config['logging_params']['save_dir'],
-                                name=config['model_params']['name'],)
+    # tb_logger = TensorBoardLogger(save_dir=config['logging_params']['save_dir'],
+    #                             name=config['model_params']['name'],)
 
-    # For reproducibility
-    seed_everything(config['exp_params']['manual_seed'], True)
+    # # For reproducibility
+    # seed_everything(config['exp_params']['manual_seed'], True)
 
-    model = vae_models[config['model_params']['name']](**config['model_params'])
-    experiment = VAEXperiment(model,
-                            config['exp_params'])
+    # model = vae_models[config['model_params']['name']](**config['model_params'])
+    # experiment = VAEXperiment(model,
+    #                         config['exp_params'])
 
-    data = VAEDataset(**config["data_params"], pin_memory=len(config['trainer_params']['devices']) != 0)
+    # data = VAEDataset(**config["data_params"], pin_memory=len(config['trainer_params']['devices']) != 0)
 
-    data.setup()
-    runner = Trainer(logger=tb_logger,
-                    callbacks=[
-                        LearningRateMonitor(),
-                        ModelCheckpoint(save_top_k=2, 
-                                        dirpath =os.path.join(tb_logger.log_dir , "checkpoints"), 
-                                        monitor= "val_loss",
-                                        save_last= True),
-                    ],
-                    #  strategy=DDPStrategy(find_unused_parameters=False),  # i only have 1 gpu, this will call nccl backend error
-                    strategy='auto',
-                    **config['trainer_params'])
-
-
-    Path(f"{tb_logger.log_dir}/Samples").mkdir(exist_ok=True, parents=True)
-    Path(f"{tb_logger.log_dir}/Reconstructions").mkdir(exist_ok=True, parents=True)
+    # data.setup()
+    # runner = Trainer(logger=tb_logger,
+    #                 callbacks=[
+    #                     LearningRateMonitor(),
+    #                     ModelCheckpoint(save_top_k=2, 
+    #                                     dirpath =os.path.join(tb_logger.log_dir , "checkpoints"), 
+    #                                     monitor= "val_loss",
+    #                                     save_last= True),
+    #                 ],
+    #                 #  strategy=DDPStrategy(find_unused_parameters=False),  # i only have 1 gpu, this will call nccl backend error
+    #                 strategy='auto',
+    #                 **config['trainer_params'])
 
 
-    print(f"======= Training {config['model_params']['name']} =======")
-    runner.fit(experiment, datamodule=data)
+    # Path(f"{tb_logger.log_dir}/Samples").mkdir(exist_ok=True, parents=True)
+    # Path(f"{tb_logger.log_dir}/Reconstructions").mkdir(exist_ok=True, parents=True)
+
+
+    # print(f"======= Training {config['model_params']['name']} =======")
+    # runner.fit(experiment, datamodule=data)
 
 if __name__ == '__main__':
     torch.set_float32_matmul_precision("high")  # optional, for RTX tensor cores

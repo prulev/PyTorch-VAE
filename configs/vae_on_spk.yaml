@@ -1,0 +1,41 @@
+preprocess_params:
+  raw_root: "raw"
+  raw_folder: "spk_rat_025_040"
+  file_name: "Rat_025_0917_MC2_spike_event-OnlineSort.mat"
+  save_root: "data"
+  save_folder: "spk_train"
+  save_filename_header: "Rat_025_0917_mPFC"
+  channel_names: ['SPK17a', 'SPK18a', 'SPK18b', 'SPK19a', 'SPK20a', 'SPK21a', 'SPK22a', 'SPK23a', 'SPK24a', 'SPK24b', 'SPK25a', 'SPK26a', 'SPK26b', 'SPK28a', 'SPK29a', 'SPK30a', 'SPK30b', 'SPK31a', 'SPK31b', 'SPK32a']
+  resample_rate: 100
+  smoothing_sigma: 1.0
+
+model_params:
+  name: 'VanillaVAE'
+  in_channels: 3
+  latent_dim: 128
+
+data_params:
+  dataset: "spk_mPFC"   # "celeba" or "spk_mPFC"
+  data_path: "data"
+  train_batch_size: 64
+  val_batch_size:  64
+  patch_size: 64
+  num_workers: 4
+
+exp_params:
+  LR: 0.005
+  weight_decay: 0.0
+  scheduler_gamma: 0.95
+  kld_weight: 0.00025
+  manual_seed: 1265
+
+trainer_params:
+  # gpus: [1]    # in the newewst version of PyTorch Lightning, gpus is replaced by devices
+  devices: "auto"     # added
+  accelerator: "auto" # added
+  max_epochs: 100
+
+logging_params:
+  save_dir: "logs/"
+  name: "VanillaVAE"
+  
